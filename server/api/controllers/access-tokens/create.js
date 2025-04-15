@@ -1,8 +1,11 @@
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+<<<<<<< HEAD
 const ldap = require('ldapjs');
 const createUser = require('../users/create');
 const { NULL } = require('node-sass');
+=======
+>>>>>>> master
 const { v4: uuid } = require('uuid');
 
 const { getRemoteAddress } = require('../../../utils/remoteAddress');
@@ -17,9 +20,12 @@ const Errors = {
   INVALID_PASSWORD: {
     invalidPassword: 'Invalid password',
   },
+<<<<<<< HEAD
   INVALID_LDAP: {
     invalidLdap: 'Ldap authentication failed',
   },
+=======
+>>>>>>> master
   USE_SINGLE_SIGN_ON: {
     useSingleSignOn: 'Use single sign-on',
   },
@@ -57,9 +63,12 @@ module.exports = {
     invalidPassword: {
       responseType: 'unauthorized',
     },
+<<<<<<< HEAD
     invalidLdap: {
       responseType: 'unauthorized',
     },
+=======
+>>>>>>> master
     useSingleSignOn: {
       responseType: 'forbidden',
     },
@@ -68,11 +77,15 @@ module.exports = {
 
 
   async fn(inputs) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     if (sails.config.custom.oidcEnforced) {
       throw Errors.USE_SINGLE_SIGN_ON;
     }
 
+<<<<<<< HEAD
     if(process.env.LDAP_SERVER){
       console.log('AUTH mode : LDAP');
 
@@ -141,6 +154,8 @@ module.exports = {
 
     }
 
+=======
+>>>>>>> master
     const remoteAddress = getRemoteAddress(this.req);
     const user = await sails.helpers.users.getOneByEmailOrUsername(inputs.emailOrUsername);
 

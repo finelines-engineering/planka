@@ -27,6 +27,7 @@
     }
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "filenamify": "^4.3.0",
     "ldap-authentication": "^2.2.9",
     "ldapjs": "^2.3.2",
@@ -52,7 +53,13 @@
     "uuid": "^9.0.1",
     "validator": "^13.12.0",
     "winston": "^3.17.0",
-    "zxcvbn": "^4.4.2"
+    "zxcvbn": "^4.4.2",
+    "lint-staged": "^12.3.8",
+    "net": "^1.0.2",
+    "node-sass": "^7.0.1",
+    "path": "^0.12.7",
+    "stream-browserify": "^3.0.0",
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "chai": "^4.5.0",

@@ -100,7 +100,10 @@ export default {
       fromTrello: 'From Trello',
       general: 'General',
       hours: 'Hours',
+<<<<<<< HEAD
       impossibleAction: 'Action not possible',
+=======
+>>>>>>> master
       importBoard_title: 'Import Board',
       invalidCurrentPassword: 'Invalid current password',
       labels: 'Labels',

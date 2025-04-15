@@ -102,8 +102,11 @@ export default {
       filterByLabels_title: 'Filtrer par étiquettes',
       filterByMembers_title: 'Filtrer par membres',
       fromComputer_title: "Depuis l'ordinateur",
+<<<<<<< HEAD
       hours: 'Les heures',
       impossibleAction: 'Action impossible',
+=======
+>>>>>>> master
       fromTrello: 'Depuis Trello',
       general: 'Général',
       hours: 'Heures',

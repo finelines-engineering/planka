@@ -33,11 +33,14 @@ const createMessage = (error) => {
         type: 'error',
         content: 'common.invalidPassword',
       };
+<<<<<<< HEAD
     case 'Ldap authentication failed':
       return {
         type: 'error',
         content: 'common.invalidLdap',
       };
+=======
+>>>>>>> master
     case 'Use single sign-on':
       return {
         type: 'error',

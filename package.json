@@ -57,16 +57,6 @@
     }
   },
   "dependencies": {
-    "buffer": "^6.0.3",
-    "knex": "^2.1.0",
-    "ldap-authentication": "^2.2.9",
-    "ldapjs": "^2.3.2",
-    "net": "^1.0.2",
-    "node": "^17.7.2",
-    "node-sass": "^7.0.1",
-    "path": "^0.12.7",
-    "stream-browserify": "^3.0.0",
-    "url": "^0.11.0",
     "concurrently": "^8.2.2",
     "genversion": "^3.2.0",
     "husky": "^9.1.7",
