@@ -53,13 +53,10 @@ module.exports = {
   async fn(inputs) {
     const { currentUser } = this.req;
 
-<<<<<<< HEAD
     if (process.env.LDAP_SERVER) {
       throw Errors.IMPOSSIBLE_ACTION; // Cannot change username if LDAP is used
     }
 
-=======
->>>>>>> master
     if (inputs.id !== currentUser.id && !currentUser.isAdmin) {
       throw Errors.USER_NOT_FOUND; // Forbidden
     }

@@ -54,14 +54,11 @@ module.exports = {
   },
 
   async fn(inputs) {
-<<<<<<< HEAD
 
     if (process.env.LDAP_SERVER) {
       throw Errors.IMPOSSIBLE_ACTION; // Cannot change password if LDAP is used
     }
 
-=======
->>>>>>> master
     const { currentSession, currentUser } = this.req;
 
     if (inputs.id === currentUser.id) {
