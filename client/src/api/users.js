@@ -1,27 +1,87 @@
 import http from './http';
 import socket from './socket';
 
+/* Transformers */
+
+export const transformUser = (user) => ({
+  ...user,
+  createdAt: new Date(user.createdAt),
+});
+
 /* Actions */
 
-const getUsers = () => socket.get('/users');
+const getUsers = (headers) =>
+  socket.get('/users', undefined, headers).then((body) => ({
+    ...body,
+    items: body.items.map(transformUser),
+  }));
 
-const createUser = (data) => socket.post('/users', data);
+const createUser = (data, headers) =>
+  socket.post('/users', data, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const getUser = (id) => socket.get(`/users/${id}`);
+const getUser = (id, headers) =>
+  socket.get(`/users/${id}`, undefined, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const getCurrentUser = () => socket.get('/users/me');
+const getCurrentUser = (subscribe, headers) =>
+  socket.get(`/users/me${subscribe ? '?subscribe=true' : ''}`, undefined, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const updateUser = (id, data) => socket.patch(`/users/${id}`, data);
+const updateUser = (id, data, headers) =>
+  socket.patch(`/users/${id}`, data, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const updateUserEmail = (id, data) => socket.patch(`/users/${id}/email`, data);
+const updateUserEmail = (id, data, headers) =>
+  socket.patch(`/users/${id}/email`, data, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const updateUserPassword = (id, data) => socket.patch(`/users/${id}/password`, data);
+const updateUserPassword = (id, data, headers) =>
+  socket.patch(`/users/${id}/password`, data, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const updateUserUsername = (id, data) => socket.patch(`/users/${id}/username`, data);
+const updateUserUsername = (id, data, headers) =>
+  socket.patch(`/users/${id}/username`, data, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const updateUserAvatar = (id, data) => http.post(`/users/${id}/avatar`, data);
+const updateUserAvatar = (id, data, headers) =>
+  http.post(`/users/${id}/avatar`, data, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
 
-const deleteUser = (id) => socket.delete(`/users/${id}`);
+const deleteUser = (id, headers) =>
+  socket.delete(`/users/${id}`, undefined, headers).then((body) => ({
+    ...body,
+    item: transformUser(body.item),
+  }));
+
+/* Event handlers */
+
+const makeHandleUserCreate = (next) => (body) => {
+  next({
+    ...body,
+    item: transformUser(body.item),
+  });
+};
+
+const makeHandleUserUpdate = makeHandleUserCreate;
+
+const makeHandleUserDelete = makeHandleUserCreate;
 
 export default {
   getUsers,
@@ -34,4 +94,7 @@ export default {
   updateUserUsername,
   updateUserAvatar,
   deleteUser,
+  makeHandleUserCreate,
+  makeHandleUserUpdate,
+  makeHandleUserDelete,
 };

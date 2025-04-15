@@ -1,25 +1,29 @@
+const { BASE_URL } = window;
+
+const BASE_PATH = BASE_URL.replace(/^.*\/\/[^/]*(.*)[^?#]*.*$/, '$1');
+
 const SERVER_BASE_URL =
   process.env.REACT_APP_SERVER_BASE_URL ||
-  (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:1337');
+  (process.env.NODE_ENV === 'production' ? BASE_URL : 'http://localhost:1337');
 
-const FETCH_OPTIONS =
-  process.env.NODE_ENV === 'production'
-    ? undefined
-    : {
-        credentials: 'include',
-      };
+const SERVER_BASE_PATH = SERVER_BASE_URL.replace(/^.*\/\/[^/]*(.*)[^?#]*.*$/, '$1');
+const SERVER_HOST_NAME = SERVER_BASE_URL.replace(/^(.*\/\/[^/?#]*).*$/, '$1');
 
 const ACCESS_TOKEN_KEY = 'accessToken';
-const ACCESS_TOKEN_EXPIRES = 365;
+const ACCESS_TOKEN_VERSION_KEY = 'accessTokenVersion';
+const ACCESS_TOKEN_VERSION = '1';
 
 const POSITION_GAP = 65535;
-const ACTIONS_LIMIT = 10;
+const ACTIVITIES_LIMIT = 50;
 
 export default {
+  BASE_PATH,
   SERVER_BASE_URL,
-  FETCH_OPTIONS,
+  SERVER_BASE_PATH,
+  SERVER_HOST_NAME,
   ACCESS_TOKEN_KEY,
-  ACCESS_TOKEN_EXPIRES,
+  ACCESS_TOKEN_VERSION_KEY,
+  ACCESS_TOKEN_VERSION,
   POSITION_GAP,
-  ACTIONS_LIMIT,
+  ACTIVITIES_LIMIT,
 };

@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 
 const Errors = {
+  NOT_ENOUGH_RIGHTS: {
+    notEnoughRights: 'Not enough rights',
+  },
   USER_NOT_FOUND: {
     userNotFound: 'User not found',
   },
@@ -34,6 +37,9 @@ module.exports = {
   },
 
   exits: {
+    notEnoughRights: {
+      responseType: 'forbidden',
+    },
     userNotFound: {
       responseType: 'notFound',
     },
@@ -50,45 +56,54 @@ module.exports = {
 
   async fn(inputs) {
 
-    if(!process.env.LDAP_SERVER){
-      const { currentUser } = this.req;
+    if (process.env.LDAP_SERVER) {
+      throw Errors.IMPOSSIBLE_ACTION; // Cannot change email if LDAP is used
+    }
 
-      if (inputs.id === currentUser.id) {
-        if (!inputs.currentPassword) {
-          throw Errors.INVALID_CURRENT_PASSWORD;
-        }
-      } else if (!currentUser.isAdmin) {
-        throw Errors.USER_NOT_FOUND; // Forbidden
-      }
+    const { currentUser } = this.req;
 
-      let user = await sails.helpers.users.getOne(inputs.id);
-
-      if (!user) {
-        throw Errors.USER_NOT_FOUND;
-      }
-
-      if (
-        inputs.id === currentUser.id &&
-        !bcrypt.compareSync(inputs.currentPassword, user.password)
-      ) {
+    if (inputs.id === currentUser.id) {
+      if (!inputs.currentPassword) {
         throw Errors.INVALID_CURRENT_PASSWORD;
       }
-
-      const values = _.pick(inputs, ['email']);
-
-      user = await sails.helpers.users
-        .updateOne(user, values, this.req)
-        .intercept('emailAlreadyInUse', () => Errors.EMAIL_ALREADY_IN_USE);
-
-      if (!user) {
-        throw Errors.USER_NOT_FOUND;
-      }
-
-      return {
-        item: user,
-      };
+    } else if (!currentUser.isAdmin) {
+      throw Errors.USER_NOT_FOUND; // Forbidden
     }
-    throw Errors.IMPOSSIBLE_ACTION;
-    
+
+    let user = await sails.helpers.users.getOne(inputs.id);
+
+    if (!user) {
+      throw Errors.USER_NOT_FOUND;
+    }
+
+    if (user.email === sails.config.custom.defaultAdminEmail || user.isSso) {
+      throw Errors.NOT_ENOUGH_RIGHTS;
+    }
+
+    if (
+      inputs.id === currentUser.id &&
+      !bcrypt.compareSync(inputs.currentPassword, user.password)
+    ) {
+      throw Errors.INVALID_CURRENT_PASSWORD;
+    }
+
+    const values = _.pick(inputs, ['email']);
+
+    user = await sails.helpers.users.updateOne
+      .with({
+        values,
+        record: user,
+        actorUser: currentUser,
+        request: this.req,
+      })
+      .intercept('emailAlreadyInUse', () => Errors.EMAIL_ALREADY_IN_USE);
+
+    if (!user) {
+      throw Errors.USER_NOT_FOUND;
+    }
+
+    return {
+      item: user,
+    };
   },
 };

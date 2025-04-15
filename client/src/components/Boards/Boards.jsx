@@ -5,14 +5,15 @@ import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { Button, Icon } from 'semantic-ui-react';
-import { closePopup } from '../../lib/popup';
+import { closePopup, usePopup } from '../../lib/popup';
 
 import Paths from '../../constants/Paths';
 import DroppableTypes from '../../constants/DroppableTypes';
-import AddPopup from './AddPopup';
-import EditPopup from './EditPopup';
+import AddStep from './AddStep';
+import EditStep from './EditStep';
 
 import styles from './Boards.module.scss';
+import globalStyles from '../../styles.module.scss';
 
 const Boards = React.memo(({ items, currentId, canEdit, onCreate, onUpdate, onMove, onDelete }) => {
   const tabsWrapper = useRef(null);
@@ -24,11 +25,14 @@ const Boards = React.memo(({ items, currentId, canEdit, onCreate, onUpdate, onMo
   }, []);
 
   const handleDragStart = useCallback(() => {
+    document.body.classList.add(globalStyles.dragging);
     closePopup();
   }, []);
 
   const handleDragEnd = useCallback(
     ({ draggableId, source, destination }) => {
+      document.body.classList.remove(globalStyles.dragging);
+
       if (!destination || source.index === destination.index) {
         return;
       }
@@ -51,6 +55,9 @@ const Boards = React.memo(({ items, currentId, canEdit, onCreate, onUpdate, onMo
     },
     [onDelete],
   );
+
+  const AddPopup = usePopup(AddStep);
+  const EditPopup = usePopup(EditStep);
 
   const itemsNode = items.map((item, index) => (
     <Draggable

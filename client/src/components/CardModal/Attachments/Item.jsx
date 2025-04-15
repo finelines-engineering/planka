@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon, Label, Loader } from 'semantic-ui-react';
+import { usePopup } from '../../../lib/popup';
 
-import EditPopup from './EditPopup';
+import EditStep from './EditStep';
 
 import styles from './Item.module.scss';
 
@@ -17,6 +18,7 @@ const Item = React.forwardRef(
       createdAt,
       isCover,
       isPersisted,
+      canEdit,
       onCoverSelect,
       onCoverDeselect,
       onClick,
@@ -48,6 +50,8 @@ const Item = React.forwardRef(
       [isCover, onCoverSelect, onCoverDeselect],
     );
 
+    const EditPopup = usePopup(EditStep);
+
     if (!isPersisted) {
       return (
         <div className={classNames(styles.wrapper, styles.wrapperSubmitting)}>
@@ -60,11 +64,9 @@ const Item = React.forwardRef(
     const extension = filename.slice((Math.max(0, filename.lastIndexOf('.')) || Infinity) + 1);
 
     return (
-      /* eslint-disable jsx-a11y/click-events-have-key-events,
-                        jsx-a11y/no-static-element-interactions */
+      /* eslint-disable-next-line jsx-a11y/click-events-have-key-events,
+                                  jsx-a11y/no-static-element-interactions */
       <div ref={ref} className={styles.wrapper} onClick={handleClick}>
-        {/* eslint-enable jsx-a11y/click-events-have-key-events,
-                          jsx-a11y/no-static-element-interactions */}
         <div
           className={styles.thumbnail}
           style={{
@@ -96,7 +98,7 @@ const Item = React.forwardRef(
               value: createdAt,
             })}
           </span>
-          {coverUrl && (
+          {coverUrl && canEdit && (
             <span className={styles.options}>
               <button type="button" className={styles.option} onClick={handleToggleCoverClick}>
                 <Icon
@@ -118,17 +120,19 @@ const Item = React.forwardRef(
             </span>
           )}
         </div>
-        <EditPopup
-          defaultData={{
-            name,
-          }}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-        >
-          <Button className={classNames(styles.button, styles.target)}>
-            <Icon fitted name="pencil" size="small" />
-          </Button>
-        </EditPopup>
+        {canEdit && (
+          <EditPopup
+            defaultData={{
+              name,
+            }}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+          >
+            <Button className={classNames(styles.button, styles.target)}>
+              <Icon fitted name="pencil" size="small" />
+            </Button>
+          </EditPopup>
+        )}
       </div>
     );
   },
@@ -141,6 +145,7 @@ Item.propTypes = {
   createdAt: PropTypes.instanceOf(Date),
   isCover: PropTypes.bool.isRequired,
   isPersisted: PropTypes.bool.isRequired,
+  canEdit: PropTypes.bool.isRequired,
   onClick: PropTypes.func,
   onCoverSelect: PropTypes.func.isRequired,
   onCoverDeselect: PropTypes.func.isRequired,

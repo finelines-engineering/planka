@@ -2,13 +2,15 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import { Button, Modal, Table } from 'semantic-ui-react';
+import { usePopup } from '../../lib/popup';
 
-import UserAddPopupContainer from '../../containers/UserAddPopupContainer';
+import UserAddStepContainer from '../../containers/UserAddStepContainer';
 import Item from './Item';
 
 const UsersModal = React.memo(
   ({
     items,
+    canAdd,
     onUpdate,
     onUsernameUpdate,
     onUsernameUpdateMessageDismiss,
@@ -77,6 +79,8 @@ const UsersModal = React.memo(
       [onDelete],
     );
 
+    const UserAddPopupContainer = usePopup(UserAddStepContainer);
+
     return (
       <Modal open closeIcon size="large" centered={false} onClose={onClose}>
         <Modal.Header>
@@ -84,10 +88,11 @@ const UsersModal = React.memo(
             context: 'title',
           })}
         </Modal.Header>
-        <Modal.Content>
-          <Table basic="very">
+        <Modal.Content scrolling>
+          <Table unstackable basic="very">
             <Table.Header>
               <Table.Row>
+                <Table.HeaderCell />
                 <Table.HeaderCell width={4}>{t('common.name')}</Table.HeaderCell>
                 <Table.HeaderCell width={4}>{t('common.username')}</Table.HeaderCell>
                 <Table.HeaderCell width={4}>{t('common.email')}</Table.HeaderCell>
@@ -102,9 +107,14 @@ const UsersModal = React.memo(
                   email={item.email}
                   username={item.username}
                   name={item.name}
+                  avatarUrl={item.avatarUrl}
                   organization={item.organization}
                   phone={item.phone}
                   isAdmin={item.isAdmin}
+                  isLocked={item.isLocked}
+                  isRoleLocked={item.isRoleLocked}
+                  isUsernameLocked={item.isUsernameLocked}
+                  isDeletionLocked={item.isDeletionLocked}
                   emailUpdateForm={item.emailUpdateForm}
                   passwordUpdateForm={item.passwordUpdateForm}
                   usernameUpdateForm={item.usernameUpdateForm}
@@ -121,11 +131,13 @@ const UsersModal = React.memo(
             </Table.Body>
           </Table>
         </Modal.Content>
-        <Modal.Actions>
-          <UserAddPopupContainer>
-            <Button positive content={t('action.addUser')} />
-          </UserAddPopupContainer>
-        </Modal.Actions>
+        {canAdd && (
+          <Modal.Actions>
+            <UserAddPopupContainer>
+              <Button positive content={t('action.addUser')} />
+            </UserAddPopupContainer>
+          </Modal.Actions>
+        )}
       </Modal>
     );
   },
@@ -133,6 +145,7 @@ const UsersModal = React.memo(
 
 UsersModal.propTypes = {
   items: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
+  canAdd: PropTypes.bool.isRequired,
   onUpdate: PropTypes.func.isRequired,
   onUsernameUpdate: PropTypes.func.isRequired,
   onUsernameUpdateMessageDismiss: PropTypes.func.isRequired,

@@ -49,10 +49,10 @@ module.exports = {
 
   customToJSON() {
     return {
-      ..._.omit(this, ['dirname', 'filename']),
-      url: `${sails.config.custom.attachmentsUrl}/${this.id}/download/${this.filename}`,
+      ..._.omit(this, ['dirname', 'filename', 'image.thumbnailsExtension']),
+      url: `${sails.config.custom.baseUrl}/attachments/${this.id}/download/${this.filename}`,
       coverUrl: this.image
-        ? `${sails.config.custom.attachmentsUrl}/${this.id}/download/thumbnails/cover-256.jpg`
+        ? `${sails.config.custom.baseUrl}/attachments/${this.id}/download/thumbnails/cover-256.${this.image.thumbnailsExtension}`
         : null,
     };
   },

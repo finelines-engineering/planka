@@ -15,7 +15,7 @@ module.exports.up = async (knex) => {
   const attachments = await knex('attachment');
 
   // eslint-disable-next-line no-restricted-syntax
-  for (attachment of attachments) {
+  for (const attachment of attachments) {
     if (attachment.is_image) {
       const image = sharp(
         path.join(config.custom.attachmentsPath, attachment.dirname, attachment.filename),
@@ -54,7 +54,7 @@ module.exports.down = async (knex) => {
   const attachments = await knex('attachment');
 
   // eslint-disable-next-line no-restricted-syntax
-  for (attachment of attachments) {
+  for (const attachment of attachments) {
     // eslint-disable-next-line no-await-in-loop
     await knex('attachment')
       .update({
@@ -63,11 +63,9 @@ module.exports.down = async (knex) => {
       .where('id', attachment.id);
   }
 
-  await knex.schema.table('attachment', (table) => {
+  return knex.schema.table('attachment', (table) => {
     table.dropColumn('image');
-  });
 
-  return knex.schema.alterTable('attachment', (table) => {
-    table.boolean('is_image').notNullable().alter();
+    table.dropNullable('is_image');
   });
 };

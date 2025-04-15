@@ -11,6 +11,9 @@ module.exports = {
       regex: /^[0-9]+$/,
       required: true,
     },
+    subscribe: {
+      type: 'boolean',
+    },
   },
 
   exits: {
@@ -47,7 +50,7 @@ module.exports = {
     const labels = await sails.helpers.boards.getLabels(board.id);
     const lists = await sails.helpers.boards.getLists(board.id);
 
-    const cards = await sails.helpers.boards.getCards(board);
+    const cards = await sails.helpers.boards.getCards(board.id);
     const cardIds = sails.helpers.utils.mapRecords(cards);
 
     const cardSubscriptions = await sails.helpers.cardSubscriptions.getMany({
@@ -69,11 +72,12 @@ module.exports = {
     );
 
     cards.forEach((card) => {
-      card.isSubscribed = isSubscribedByCardId[card.id] || false; // eslint-disable-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign
+      card.isSubscribed = isSubscribedByCardId[card.id] || false;
     });
 
-    if (this.req.isSocket) {
-      sails.sockets.join(this.req, `board:${board.id}`); // TODO: only when subscription needed
+    if (inputs.subscribe && this.req.isSocket) {
+      sails.sockets.join(this.req, `board:${board.id}`);
     }
 
     return {

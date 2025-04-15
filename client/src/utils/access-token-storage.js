@@ -1,26 +1,36 @@
 import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 import Config from '../constants/Config';
 
 export const setAccessToken = (accessToken) => {
+  const { exp } = jwtDecode(accessToken);
+  const expires = new Date(exp * 1000);
+
   Cookies.set(Config.ACCESS_TOKEN_KEY, accessToken, {
-    expires: Config.ACCESS_TOKEN_EXPIRES,
+    expires,
+    secure: window.location.protocol === 'https:',
+    sameSite: 'strict',
   });
-};
 
-export const getAccessToken = () => {
-  // TODO: remove migration
-  const accessToken = localStorage.getItem(Config.ACCESS_TOKEN_KEY);
-  if (accessToken) {
-    localStorage.removeItem(Config.ACCESS_TOKEN_KEY);
-
-    setAccessToken(accessToken);
-    return accessToken;
-  }
-
-  return Cookies.get(Config.ACCESS_TOKEN_KEY);
+  Cookies.set(Config.ACCESS_TOKEN_VERSION_KEY, Config.ACCESS_TOKEN_VERSION, {
+    expires,
+  });
 };
 
 export const removeAccessToken = () => {
   Cookies.remove(Config.ACCESS_TOKEN_KEY);
+  Cookies.remove(Config.ACCESS_TOKEN_VERSION_KEY);
+};
+
+export const getAccessToken = () => {
+  let accessToken = Cookies.get(Config.ACCESS_TOKEN_KEY);
+  const accessTokenVersion = Cookies.get(Config.ACCESS_TOKEN_VERSION_KEY);
+
+  if (accessToken && accessTokenVersion !== Config.ACCESS_TOKEN_VERSION) {
+    removeAccessToken();
+    accessToken = undefined;
+  }
+
+  return accessToken;
 };

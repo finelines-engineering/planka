@@ -1,19 +1,22 @@
-import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import TextareaAutosize from 'react-textarea-autosize';
-import { Button, Form, TextArea } from 'semantic-ui-react';
+import { Button, Form } from 'semantic-ui-react';
+import SimpleMDE from 'react-simplemde-editor';
+import { useClickAwayListener } from '../../lib/hooks';
 
-import { useClosableForm, useField } from '../../hooks';
+import { useNestedRef } from '../../hooks';
 
 import styles from './DescriptionEdit.module.scss';
 
 const DescriptionEdit = React.forwardRef(({ children, defaultValue, onUpdate }, ref) => {
   const [t] = useTranslation();
   const [isOpened, setIsOpened] = useState(false);
-  const [value, handleFieldChange, setValue] = useField(null);
+  const [value, setValue] = useState(null);
 
-  const field = useRef(null);
+  const editorWrapperRef = useRef(null);
+  const codemirrorRef = useRef(null);
+  const [buttonRef, handleButtonRef] = useNestedRef();
 
   const open = useCallback(() => {
     setIsOpened(true);
@@ -41,7 +44,7 @@ const DescriptionEdit = React.forwardRef(({ children, defaultValue, onUpdate }, 
   );
 
   const handleChildrenClick = useCallback(() => {
-    if (!getSelection().toString()) {
+    if (!window.getSelection().toString()) {
       open();
     }
   }, [open]);
@@ -55,20 +58,60 @@ const DescriptionEdit = React.forwardRef(({ children, defaultValue, onUpdate }, 
     [close],
   );
 
-  const [handleFieldBlur, handleControlMouseOver, handleControlMouseOut] = useClosableForm(
-    close,
-    isOpened,
-  );
-
   const handleSubmit = useCallback(() => {
     close();
   }, [close]);
 
-  useEffect(() => {
-    if (isOpened) {
-      field.current.ref.current.select();
+  const handleAwayClick = useCallback(() => {
+    if (!isOpened) {
+      return;
     }
-  }, [isOpened]);
+
+    close();
+  }, [isOpened, close]);
+
+  const handleClickAwayCancel = useCallback(() => {
+    codemirrorRef.current.focus();
+  }, []);
+
+  const clickAwayProps = useClickAwayListener(
+    [editorWrapperRef, buttonRef],
+    handleAwayClick,
+    handleClickAwayCancel,
+  );
+
+  const handleGetCodemirrorInstance = useCallback((codemirror) => {
+    codemirrorRef.current = codemirror;
+  }, []);
+
+  const mdEditorOptions = useMemo(
+    () => ({
+      autoDownloadFontAwesome: false,
+      autofocus: true,
+      spellChecker: false,
+      status: false,
+      toolbar: [
+        'bold',
+        'italic',
+        'heading',
+        'strikethrough',
+        '|',
+        'quote',
+        'unordered-list',
+        'ordered-list',
+        'table',
+        '|',
+        'link',
+        'image',
+        '|',
+        'undo',
+        'redo',
+        '|',
+        'guide',
+      ],
+    }),
+    [],
+  );
 
   if (!isOpened) {
     return React.cloneElement(children, {
@@ -78,26 +121,20 @@ const DescriptionEdit = React.forwardRef(({ children, defaultValue, onUpdate }, 
 
   return (
     <Form onSubmit={handleSubmit}>
-      <TextArea
-        ref={field}
-        as={TextareaAutosize}
-        value={value}
-        placeholder={t('common.enterDescription')}
-        minRows={3}
-        spellCheck={false}
-        className={styles.field}
-        onKeyDown={handleFieldKeyDown}
-        onChange={handleFieldChange}
-        onBlur={handleFieldBlur}
-      />
-      <div className={styles.controls}>
-        {/* eslint-disable-next-line jsx-a11y/mouse-events-have-key-events */}
-        <Button
-          positive
-          content={t('action.save')}
-          onMouseOver={handleControlMouseOver}
-          onMouseOut={handleControlMouseOut}
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <div {...clickAwayProps} ref={editorWrapperRef}>
+        <SimpleMDE
+          value={value}
+          options={mdEditorOptions}
+          placeholder={t('common.enterDescription')}
+          className={styles.field}
+          getCodemirrorInstance={handleGetCodemirrorInstance}
+          onKeyDown={handleFieldKeyDown}
+          onChange={setValue}
         />
+      </div>
+      <div className={styles.controls}>
+        <Button positive ref={handleButtonRef} content={t('action.save')} />
       </div>
     </Form>
   );
